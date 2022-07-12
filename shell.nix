@@ -26,6 +26,7 @@ in pkgs.mkShell {
     pkgs.blas
     pkgs.gettext
     pkgs.libiconv
+    pkgs.libsvm
     # Library Dependencies
     pkgs.netcdf
     pkgs.graphviz
@@ -39,6 +40,7 @@ in pkgs.mkShell {
     pkgs.rPackages.tidyverse
     pkgs.rPackages.plyr
     pkgs.rPackages.ggthemes
+    pkgs.rPackages.e1071
     # System dependencies
     frameworks.Accelerate
   ];

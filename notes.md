@@ -8,3 +8,9 @@ Basic outline:
 - [C] DESeq2 likelihood-ratio to run automagically between samples and infer differences
 - [A] Run nu-SVM to infer parameters
   - [B] Use l-curve optimization on the SVM
+
+Package Design:
+- Nextflow for gluing things together?
+- Poetry for Python components
+- DESeq2 for R components
+- LibSVM for the SVM parts
