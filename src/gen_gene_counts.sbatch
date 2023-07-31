@@ -14,7 +14,7 @@ module load samtools
 module load subread
 
 # Variables
-workDir=/scratch/Users/zama8258/deconvolution_gene_trials
+workDir=/scratch/Users/zama8258/deconvolution_gene_trials_300
 
 # Shrink names for readability
 db="/Shares/dbnascent"
@@ -52,7 +52,9 @@ refSeq=/scratch/Shares/dowell/genomes/hg38/hg38.fa
 db=/scratch/Users/zama8258/deconascent
 refFile="$db"/data/hg38_refseq.bed
 safFile="$workDir"/hg38_refseq.saf
-awk -v OFS='\t' '{print $4, $1, $2, $3, $6}' "$refFile" > "$safFile"
+# awk -v OFS='\t' '{print $4, $1, $2, $3, $6}' "$refFile" > "$safFile"
+awk -v OFS='\t' '{ if ($3-$2 > 300) {if ($6 == "+") print $4, $1, $2+300, $3, $6; else print $4, $1, $2, $3-300, $6}}' "$refFile" > "$safFile"
+
 # Run featureCounts on each individual file
 # Only want to run once, so we can separate this out?
 parallel -j 8 --progress --link featureCounts \

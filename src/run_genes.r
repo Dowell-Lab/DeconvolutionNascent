@@ -65,21 +65,21 @@ read_gene_samples <- function(data_dir) {
         inner_join(sample_bj5ta, by="Geneid") %>%
         inner_join(sample_lcl, by="Geneid") %>%
         transmute(GeneID = Geneid,
-                  hct    = `/scratch/Users/zama8258/deconvolution_gene_trials/Jiang2018multi.bam`,
-                  hela   = `/scratch/Users/zama8258/deconvolution_gene_trials/Fei2018ndf.bam`,
-                  mcf7   = `/scratch/Users/zama8258/deconvolution_gene_trials/Andrysik2017identification.bam`,
-                  k562   = `/scratch/Users/zama8258/deconvolution_gene_trials/Dukler2017nascent.bam`,
-                  esc    = `/scratch/Users/zama8258/deconvolution_gene_trials/Smith2021peppro.bam`,
-                  kasumi = `/scratch/Users/zama8258/deconvolution_gene_trials/Zhao2016high.bam`,
-                  cd4    = `/scratch/Users/zama8258/deconvolution_gene_trials/Danko2018dynamic.bam`,
-                  jurkat = `/scratch/Users/zama8258/deconvolution_gene_trials/Chu2018chromatin.bam`,
-                  bj5ta  = `/scratch/Users/zama8258/deconvolution_gene_trials/Ikegami2020phosphorylated.bam`,
-                  lcl    = `/scratch/Users/zama8258/deconvolution_gene_trials/Core2014analysis.bam`) #%>%
+                  hct    = `/scratch/Users/zama8258/deconvolution_gene_trials_300/Jiang2018multi.bam`,
+                  hela   = `/scratch/Users/zama8258/deconvolution_gene_trials_300/Fei2018ndf.bam`,
+                  mcf7   = `/scratch/Users/zama8258/deconvolution_gene_trials_300/Andrysik2017identification.bam`,
+                  k562   = `/scratch/Users/zama8258/deconvolution_gene_trials_300/Dukler2017nascent.bam`,
+                  esc    = `/scratch/Users/zama8258/deconvolution_gene_trials_300/Smith2021peppro.bam`,
+                  kasumi = `/scratch/Users/zama8258/deconvolution_gene_trials_300/Zhao2016high.bam`,
+                  cd4    = `/scratch/Users/zama8258/deconvolution_gene_trials_300/Danko2018dynamic.bam`,
+                  jurkat = `/scratch/Users/zama8258/deconvolution_gene_trials_300/Chu2018chromatin.bam`,
+                  bj5ta  = `/scratch/Users/zama8258/deconvolution_gene_trials_300/Ikegami2020phosphorylated.bam`,
+                  lcl    = `/scratch/Users/zama8258/deconvolution_gene_trials_300/Core2014analysis.bam`) #%>%
     return(samples_merged)
 }
 
 ## Do data loading
-data_dir <- "~/Dropbox/phd/research/dna_lab/deconascent/data/gene_counts/"
+data_dir <- "~/Dropbox/phd/research/dna_lab/deconascent/data/gene_counts_300/"
 genes_merged <- read_gene_samples(data_dir)
 ## Generate filter set for later example
 filter_regions <- rowSums(genes_merged[2:10] != 0) > 1
@@ -89,7 +89,7 @@ counts_homo <- as.matrix(genes_merged[2:ncol(genes_merged)])
 rownames(counts_homo) <- genes_merged$GeneID
 
 ## Load heterogenous
-data_dir <- "~/Dropbox/phd/research/dna_lab/deconascent/data/gene_counts/merged_"
+data_dir <- "~/Dropbox/phd/research/dna_lab/deconascent/data/gene_counts_300/merged_"
 genes_random <- read_sample(1, data_dir)
 for (sample_iter in seq(2,128)) {
     sample_random <- read_sample(sample_iter, data_dir)
@@ -113,7 +113,7 @@ coef_df <- tibble(
     ## lcl    = double()
 )
 for (iter in seq_len(128)) {
-    new_coefs <- read_delim(paste0("data/gene_counts/coefs_",
+    new_coefs <- read_delim(paste0("data/gene_counts_300/coefs_",
                                    iter, ".txt"),
                             col_names=c("hct","hela","mcf7",
                                         "k562","esc","kasumi",
@@ -190,19 +190,19 @@ for (celltype in celltypes) {
     ggsave(paste0(linear_dir, "genes_", celltype,".pdf"), width=8, height=8)
 }
 
-info_content <- cor(counts_homo)
-for (i in seq_len(10)) {
-    for (j in seq_len(10)) {
-        ## info_content[i,j] <- round(mutinformation(counts_homo[,i], counts_homo[,j]), 3)
-        ## info_content[i,j] <- round(jsd(counts_homo[,i],
-        ##                               counts_homo[,j]), 3)
-        info_content[i,j] <- round(mean(jsd(counts_homo[,i],
-                                            counts_homo[,j])), 3)
-        ## if (i == j) {
-        ##     info_content[i,j] <- 1
-        ## }
-    }
-}
+## info_content <- cor(counts_homo)
+## for (i in seq_len(10)) {
+##     for (j in seq_len(10)) {
+##         ## info_content[i,j] <- round(mutinformation(counts_homo[,i], counts_homo[,j]), 3)
+##         ## info_content[i,j] <- round(jsd(counts_homo[,i],
+##         ##                               counts_homo[,j]), 3)
+##         info_content[i,j] <- round(mean(jsd(counts_homo[,i],
+##                                             counts_homo[,j])), 3)
+##         ## if (i == j) {
+##         ##     info_content[i,j] <- 1
+##         ## }
+##     }
+## }
 
 num_runs <- 100
 rms_df <- tibble(iter=seq_len(num_runs),
@@ -260,15 +260,12 @@ for (method in c("nnls", "ridge", "lasso", "eps_svm")) {
     }
     rms_df[paste0(method, "_", method)] <- all_rms
 }
-save(multi_res_tbl, file="regions_genes_res.Rdata")
+## save(multi_res_tbl, file="regions_genes_res.Rdata")
+save(multi_res_tbl, file="regions_genes_300_res.Rdata")
 
 agg_rms <- multi_res_tbl %>% group_by(method, num_regions) %>% summarise(all_rms = sum(rms))
 aggregate_plot <- ggplot(data = agg_rms) +
     geom_line(aes(x=num_regions, y=all_rms, color=method)) +
-    geom_hline(aes(yintercept=2.51, color="eps_svm"), linetype="dotted") +
-    geom_hline(aes(yintercept=2.06, color="lasso"), linetype="dotted") +
-    geom_hline(aes(yintercept=0.294, color="nnls"), linetype="dotted") +
-    geom_hline(aes(yintercept=5.51, color="ridge"), linetype="dotted") +
     scale_x_log10() +
     theme_minimal() +
     scale_color_discrete(name="Algorithm",
